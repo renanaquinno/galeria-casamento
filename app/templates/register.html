@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Cadastrar-se</title>
+    <link rel="stylesheet" href="{{url_for('static', filename='/css/style.css')}}">
+	<link rel="stylesheet" href="{{url_for('static', filename='/css/login.css')}}">
+	<link rel="shortcut icon" href="{{url_for('static', filename='/upload/favicon.ico')}}" />
+
+</head>
+
+<body>
+	{% with messages = get_flashed_messages() %}
+	{% if messages %}
+	<div class="alert alert-warning">
+		<ul class=flashes>
+			{% for message in messages %}
+			<li>{{ message }}</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+	{% endif %}
+	{% endwith %}
+
+	<h2>Galeria de Fotos do Casamento de  Ana e Pedro</h2>
+	<div class="container-login" id="container">
+		<div class="form-container sign-in-container">
+			<form action="#" method="POST">
+				<h1>Criar Conta</h1>
+				<input type="text" name="name" placeholder="Nome (Ex: João Silva)" />
+				<input type="text" name="username" placeholder="Usuario (Ex: joao.silva)" />
+				<input type="password" name="password" placeholder="Senha (minimo 4 digitos)" />
+				<button type="submit" name="myButton" class="button-input">Cadastrar-se</button>
+				<button class="btn-login button-input"><a href="{{ url_for('Login') }}">Entrar</a></button>
+			</form>
+		</div>
+		<div class="overlay-container">
+			<div class="overlay">
+				<div class="overlay-panel overlay-right">
+					<h1>Bem vindo!</h1>
+					<p>Para ver nossas fotos faça o seu login</p>
+					<button class="ghost button-input"><a href="{{ url_for('Login') }}">Entrar</a></button>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+</body>
+
+</html>

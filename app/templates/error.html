@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error</title>
+	<link rel="stylesheet" href="{{url_for('static', filename='/css/error.css')}}">
+    <link rel="shortcut icon" href="{{url_for('static', filename='/upload/favicon.ico')}}" />
+
+</head>
+<body>
+
+    {% if current_user.is_authenticated %}
+    <div id='oopss'>
+        <div id='error-text'>
+        <span>404</span>
+        <p>Página Não Encontrada</p><p class='hmpg'><a href='/' class="back">Voltar para pagina principal</a></p>
+        </div>
+        </div>
+    {% else %}
+    <div id='oopss'>
+        <div id='error-text'>
+        <span>401</span>
+        <p>Você não esta logado</p><p class='hmpg'><a href='/login' class="back">Voltar para pagina de login</a></p>
+        </div>
+        </div>
+    {% endif %}
+
+  
+    
+</body>
+</html>

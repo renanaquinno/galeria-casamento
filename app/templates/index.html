@@ -1,0 +1,329 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Droid+Sans:400,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://rawgit.com/LeshikJanz/libraries/master/Bootstrap/baguetteBox.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.7.3/dist/css/uikit.min.css" />
+    
+    <link rel="stylesheet" href="{{url_for('static', filename='/css/style.css')}}">
+    <link rel="shortcut icon" href="{{url_for('static', filename='/upload/favicon.ico')}}" />
+
+    <title>Álbum de Casamento</title>
+
+</head>
+
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="alert alert-warning">
+        <ul class=flashes>
+            {% for message in messages %}
+            <li data-target="#modalFlash">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% endif %}
+    {% endwith %}
+
+
+    {% if currentUser.isadmin == 1 %}
+    <div class="nav justify-content-center">
+        <div class="nav-header ">
+
+            <div class="nav-title welcome">
+                {{ currentUser.name }}, seja bem-vindo ao seu álbum de casamento compartilhe e aprove novas fotos para seus amigos poderem ver, comentar e curtir.
+            </div>
+
+        </div>
+        <div class="nav-links">
+            <button class="btn-share btn btn-sm animated-button victoria-four" data-toggle="modal" data-target="#exampleModal">
+                <label for="file">Compartilhar Foto</label>
+            </button>
+
+            <a href="{{ url_for('Logout') }}" class="btn btn-sm animated-button victoria-four">Sair</a>
+        </div>
+    </div>
+
+    <div class="container gallery-container">
+        <h1>Álbum de Casamento de Ana e Pedro</h1>
+        <div class="tz-gallery">
+            <div class="row">
+                {% for photo in photosAll %}
+                <div class="col-12 col-md-8">
+                    <a class="lightbox" href="{{url_for('static', filename= photo.src)}}">
+                        <img src="{{url_for('static', filename= photo.src)}}">
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-4">
+                    <ul class="list-unstyled">
+                        <li class="media">
+                            <div class="media-body">
+                                <div class="detailBox">
+                                    <div class="commentBox">
+                                        {% for y in range(user|count) %}
+                                        {% if photo['user'] == user[y]['id'] %}
+                                        <hr>
+                                        <h5 class="mt-0 mb-1">Fotografia enviada por <span
+                                                class="mt-0 mb-1 font-weight-bold">{{user[y]["name"]}}</span></h5>
+                                        <hr>
+                                        {% endif %}
+                                        {% endfor %}
+                                        <form action="/show" method="post">
+                                            <input type="hidden" name="photoId" value="{{photo.id}}">
+                                            {% if photo['approved'] == 0 %}
+                                            <input type="submit"
+                                                class="button-input btn btn-sm animated-button victoria-four"
+                                                value="APROVAR EXIBIÇÃO">
+                                            {% else %}
+                                            <input type="submit"
+                                                class="button-input-two btn btn-sm animated-button victoria-four"
+                                                value="RETIRAR EXIBIÇÃO">
+                                            {% endif %}
+                                        </form>
+                                    </div>
+                                    <div class="titleBox">
+
+                                    </div>
+                                    <div class="actionBox">
+                                        <ul class="commentList">
+                                            {% for i in range(comments|count) %}
+                                            {% if photo.id == comments[i]['photo'] %}
+                                            <li>
+                                                <div class="commenterImage">
+                                                    {% for x in range(user|count) %}
+                                                    {% if comments[i]['user'] == user[x]['id'] %}
+                                                    <h5 class="mt-0 mb-1 font-weight-bold">{{user[x]["name"]}}:
+                                                        <span class="font-weight-light">{{comments[i]["text"]}}
+                                                            {% if comments[i]['user'] == id %}
+                                                            <a href="{{ url_for('deleteComment', id =comments[i]['id']) }}"
+                                                                class="delete">apagar</a></span>
+                                                        {% endif %}
+                                                    </h5>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </div>
+
+                                            </li>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                        <form method="POST" action="/comment">
+                                            <div class="input-group mb-3">
+                                                <input type="hidden" name="userId" value="{{id}}" />
+                                                <input type="hidden" name="photoId" value="{{photo['id']}}" />
+                                                <input type="text" name="comment" class="form-control"
+                                                    placeholder="Comentar" aria-label="Comentar"
+                                                    aria-describedby="basic-addon2">
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-outline-secondary"
+                                                        type="submit">Postar</button>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        <form method="POST" action="/like">
+                                            <div class="form-group">
+                                                <input type="hidden" name="userId" value="{{id}}" />
+                                                <input type="hidden" name="photoId" value="{{photo['id']}}" />
+                                                <div class="numero">
+                                                    <button class="button-input btn btn-alert" type="submit"
+                                                        value="Curtir"><i class="fas fa-heart"></i>
+                                                        {% for g in range(likes|count) if photo['id'] ==
+                                                        likes[g]['photo'] %}
+                                                        {% print(loop.length) %}
+                                                        {%break%}
+                                                        {% endfor %}</button>
+                                                </div>
+
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+    {% endfor %}
+    </div>
+    </div>
+    </div>
+
+
+    <!-- USER NOT ADMIN-->
+    {% else %}
+
+    <div class="nav justify-content-center">
+        <div class="nav-header ">
+
+            <div class="nav-title welcome">
+                {{ current_user.name }}, seja bem-vindo ao nosso álbum, se você tiver alguma foto fique a vontade para postar.
+            </div>
+
+        </div>
+        <div class="nav-links">
+            <button class="btn-share btn btn-sm animated-button victoria-four" data-toggle="modal" data-target="#exampleModal">
+                <label for="file">Compartilhar Foto</label>
+            </button>
+            <a href="{{ url_for('Logout') }}" class="btn btn-sm animated-button victoria-four">Sair</a>
+        </div>
+    </div>
+
+    <div class="container gallery-container">
+        <h1>Álbum de Casamento de Ana e Pedro</h1>
+        <div class="tz-gallery">
+            <div class="row">
+
+                {% for photo in photosApproved %}
+                <div class="col-12 col-md-8">
+                    <a class="lightbox" href="{{url_for('static', filename= photo.src)}}">
+                        <img src="{{url_for('static', filename= photo.src)}}">
+                    </a>
+                </div>
+
+                <div class="col-6 col-md-4">
+                    <ul class="list-unstyled">
+                        <li class="media">
+                            <div class="media-body">
+                                <div class="detailBox">
+                                    <div class="commentBox">
+                                        {% for y in range(user|count) %}
+                                        {% if photo['user'] == user[y]['id'] %}
+                                        <hr>
+                                        <h5 class="mt-0 mb-1">Fotografia enviada por <span
+                                                class="mt-0 mb-1 font-weight-bold">{{user[y]["name"]}}</span>
+                                        </h5>
+                                        <hr>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <div class="titleBox">
+                                    </div>
+                                    <div class="actionBox">
+                                        <ul class="commentList">
+                                            {% for i in range(comments|count) %}
+                                            {% if photo.id == comments[i]['photo'] %}
+                                            <li>
+                                                <div class="commenterImage">
+                                                    {% for x in range(user|count) %}
+                                                    {% if comments[i]['user'] == user[x]['id'] %}
+                                                    <h5 class="mt-0 mb-1 font-weight-bold">
+                                                        {{user[x]["name"]}}: <span
+                                                            class="font-weight-light">{{comments[i]["text"]}}
+
+                                                            {% if comments[i]['user'] == id %}
+                                                            <a href="{{ url_for('deleteComment', id=comments[i]['id']) }}"
+                                                                class="delete">apagar</a></span>
+                                                        {% endif %}
+                                                    </h5>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="commentText">
+                                                </div>
+                                            </li>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </ul>
+                                        <form method="POST" action="/comment">
+                                            <div class="input-group mb-3">
+                                                <input type="hidden" name="userId" value="{{id}}" />
+                                                <input type="hidden" name="photoId" value="{{photo['id']}}" />
+                                                <input type="text" name="comment" class="form-control"
+                                                    placeholder="Comentar" aria-label="Comentar"
+                                                    aria-describedby="basic-addon2">
+                                                <div class="input-group-append">
+                                                    <button class="btn-outline-secondary btn "
+                                                        type="submit">Postar</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <form method="POST" action="/like">
+                                            <div class="form-group">
+                                                <input type="hidden" name="userId" value="{{id}}" />
+                                                <input type="hidden" name="photoId" value="{{photo['id']}}" />
+                                                <div class="numero">
+                                                    <button class="button-input btn btn-alert" type="submit"
+                                                        value="Curtir"><i class="fas fa-heart"></i>
+                                                        {% for g in range(likes|count) if photo['id'] ==
+                                                        likes[g]['photo'] %}
+                                                        {% print(loop.length) %}
+                                                        {%break%}
+                                                        {% endfor %}</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                {% endfor %}
+                
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form action="/upload" enctype="multipart/form-data" method="POST">
+
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Compartilhar Foto</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="userId" value="{{id}}" />
+                        <input type="file" name="photo" class="form-control" autocomplete="off" required>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
+                        <input type="submit" class="button-input btn btn-sm animated-button victoria-four"
+                            value="Compartilhar Foto">
+                        </input>
+                    </div>
+            </form>
+
+        </div>
+    </div>   <!-- ///Modal -->
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/4855453886.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.js"></script>
+    <script>
+        baguetteBox.run('.tz-gallery');
+
+    </script>
+
+</body>
+</html>
